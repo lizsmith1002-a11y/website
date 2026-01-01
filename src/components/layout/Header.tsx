@@ -16,9 +16,6 @@ export function Header() {
             <Link href="/articles" className="hover:text-primary transition-colors">
               Articles
             </Link>
-            <Link href="/about" className="hover:text-primary transition-colors">
-              About
-            </Link>
           </div>
         </nav>
       </Container>

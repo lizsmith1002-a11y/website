@@ -16,7 +16,7 @@ export default function ArticlesPage() {
           Explore our collection of articles covering board roles, governance best practices,
           and guidance for effective board service.
         </p>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="flex flex-col gap-6 max-w-2xl">
           {articles.map((article) => (
             <ArticleCard key={article.slug} article={article} />
           ))}
