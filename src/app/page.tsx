@@ -20,12 +20,9 @@ export default function Home() {
               Discover insights on board governance, leadership roles, and best practices
               for effective board service.
             </p>
-            <div className="mt-8 flex gap-4">
+            <div className="mt-8">
               <Link href="/articles">
                 <Button>Browse Articles</Button>
-              </Link>
-              <Link href="/about">
-                <Button variant="outline">Learn More</Button>
               </Link>
             </div>
           </div>
@@ -36,7 +33,7 @@ export default function Home() {
       <section className="py-16">
         <Container>
           <h2 className="text-2xl font-bold mb-8">Featured Articles</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="flex flex-col gap-6 max-w-2xl">
             {featuredArticles.map((article) => (
               <ArticleCard key={article.slug} article={article} />
             ))}
