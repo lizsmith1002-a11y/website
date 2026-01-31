@@ -11,7 +11,7 @@ export function Header() {
               Liz Smith
             </span>
             <span className="block text-xs tracking-widest uppercase text-muted-foreground mt-0.5 ui-text font-medium">
-              Board Advisory
+              Non Executive Director
             </span>
           </Link>
           <div className="flex items-center gap-8 ui-text">

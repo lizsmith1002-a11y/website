@@ -80,20 +80,10 @@ export default async function Home() {
               share lessons learned, explore emerging best practices, and offer perspectives
               on the evolving responsibilities of board service.
             </p>
-            <div className="flex justify-center gap-8 text-center">
+            <div className="flex justify-center text-center">
               <div>
                 <p className="text-3xl font-normal text-primary">15+</p>
                 <p className="text-sm text-muted-foreground ui-text mt-1">Years Experience</p>
-              </div>
-              <div className="border-l border-border" />
-              <div>
-                <p className="text-3xl font-normal text-primary">8</p>
-                <p className="text-sm text-muted-foreground ui-text mt-1">Board Positions</p>
-              </div>
-              <div className="border-l border-border" />
-              <div>
-                <p className="text-3xl font-normal text-primary">3</p>
-                <p className="text-sm text-muted-foreground ui-text mt-1">Sectors</p>
               </div>
             </div>
           </div>

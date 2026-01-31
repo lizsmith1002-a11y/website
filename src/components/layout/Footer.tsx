@@ -10,7 +10,7 @@ export function Footer() {
             <Link href="/" className="inline-block mb-4">
               <span className="text-xl font-normal text-foreground">Liz Smith</span>
               <span className="block text-xs tracking-widest uppercase text-muted-foreground mt-1 ui-text">
-                Board Advisory
+                Non Executive Director
               </span>
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
