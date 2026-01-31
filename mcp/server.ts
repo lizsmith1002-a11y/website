@@ -5,34 +5,20 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import * as fs from "fs";
-import * as path from "path";
-import { execSync } from "child_process";
+import { createClient } from "@supabase/supabase-js";
 
-// Path to the website content
-const WEBSITE_ROOT = path.resolve(process.env.WEBSITE_ROOT || path.join(__dirname, ".."));
-const ARTICLES_DIR = path.join(WEBSITE_ROOT, "content/articles");
-const CONFIG_FILE = path.join(WEBSITE_ROOT, "content/site-config.json");
-const THEME_FILE = path.join(WEBSITE_ROOT, "src/app/globals.css");
+// Supabase configuration - uses environment variables
+const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-// Helper functions
-function ensureDir(dir: string) {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
+if (!supabaseUrl || !supabaseKey) {
+  console.error("Missing Supabase credentials. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables.");
+  process.exit(1);
 }
 
-function readConfig() {
-  if (fs.existsSync(CONFIG_FILE)) {
-    return JSON.parse(fs.readFileSync(CONFIG_FILE, "utf-8"));
-  }
-  return {};
-}
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-function writeConfig(config: object) {
-  fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
-}
-
+// Helper function to create slug
 function slugify(title: string): string {
   return title
     .toLowerCase()
@@ -40,142 +26,75 @@ function slugify(title: string): string {
     .replace(/(^-|-$)/g, "");
 }
 
-function listArticles() {
-  ensureDir(ARTICLES_DIR);
-  const files = fs.readdirSync(ARTICLES_DIR).filter((f) => f.endsWith(".md"));
-  return files.map((file) => {
-    const content = fs.readFileSync(path.join(ARTICLES_DIR, file), "utf-8");
-    const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
-    const frontmatter: Record<string, string> = {};
-    if (frontmatterMatch) {
-      frontmatterMatch[1].split("\n").forEach((line) => {
-        const [key, ...val] = line.split(": ");
-        if (key) frontmatter[key.trim()] = val.join(": ").trim();
-      });
-    }
-    return {
-      slug: file.replace(".md", ""),
-      title: frontmatter.title || file,
-      date: frontmatter.date || "",
-      category: frontmatter.category || "Uncategorized",
-      excerpt: frontmatter.excerpt || "",
-    };
-  });
+// Article operations
+async function listArticles() {
+  const { data, error } = await supabase
+    .from("articles")
+    .select("slug, title, excerpt, category, date")
+    .order("date", { ascending: false });
+
+  if (error) throw new Error(`Failed to list articles: ${error.message}`);
+  return data;
 }
 
-function createArticle(title: string, content: string, category: string, excerpt: string) {
-  ensureDir(ARTICLES_DIR);
+async function getArticle(slug: string) {
+  const { data, error } = await supabase
+    .from("articles")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+
+  if (error) throw new Error(`Article not found: ${slug}`);
+  return data;
+}
+
+async function createArticle(title: string, content: string, category: string, excerpt: string) {
   const slug = slugify(title);
   const date = new Date().toISOString().split("T")[0];
-  const markdown = `---
-title: ${title}
-excerpt: ${excerpt}
-date: ${date}
-category: ${category}
----
 
-${content}
-`;
-  fs.writeFileSync(path.join(ARTICLES_DIR, `${slug}.md`), markdown);
-  return { slug, title, date, category };
+  const { data, error } = await supabase
+    .from("articles")
+    .insert({ slug, title, content, category, excerpt, date })
+    .select()
+    .single();
+
+  if (error) throw new Error(`Failed to create article: ${error.message}`);
+  return data;
 }
 
-function editArticle(slug: string, updates: { title?: string; content?: string; category?: string; excerpt?: string }) {
-  const filePath = path.join(ARTICLES_DIR, `${slug}.md`);
-  if (!fs.existsSync(filePath)) {
-    throw new Error(`Article not found: ${slug}`);
-  }
+async function editArticle(slug: string, updates: { title?: string; content?: string; category?: string; excerpt?: string }) {
+  const updateData: Record<string, string> = {};
+  if (updates.title) updateData.title = updates.title;
+  if (updates.content) updateData.content = updates.content;
+  if (updates.category) updateData.category = updates.category;
+  if (updates.excerpt) updateData.excerpt = updates.excerpt;
 
-  const fileContent = fs.readFileSync(filePath, "utf-8");
-  const frontmatterMatch = fileContent.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  const { data, error } = await supabase
+    .from("articles")
+    .update(updateData)
+    .eq("slug", slug)
+    .select()
+    .single();
 
-  if (!frontmatterMatch) {
-    throw new Error("Invalid article format");
-  }
-
-  const frontmatter: Record<string, string> = {};
-  frontmatterMatch[1].split("\n").forEach((line) => {
-    const [key, ...val] = line.split(": ");
-    if (key) frontmatter[key.trim()] = val.join(": ").trim();
-  });
-
-  const existingContent = frontmatterMatch[2].trim();
-
-  const newFrontmatter = {
-    title: updates.title || frontmatter.title,
-    excerpt: updates.excerpt || frontmatter.excerpt,
-    date: frontmatter.date,
-    category: updates.category || frontmatter.category,
-  };
-
-  const newContent = updates.content !== undefined ? updates.content : existingContent;
-
-  const markdown = `---
-title: ${newFrontmatter.title}
-excerpt: ${newFrontmatter.excerpt}
-date: ${newFrontmatter.date}
-category: ${newFrontmatter.category}
----
-
-${newContent}
-`;
-
-  fs.writeFileSync(filePath, markdown);
-  return { slug, ...newFrontmatter };
+  if (error) throw new Error(`Failed to update article: ${error.message}`);
+  return data;
 }
 
-function deleteArticle(slug: string) {
-  const filePath = path.join(ARTICLES_DIR, `${slug}.md`);
-  if (!fs.existsSync(filePath)) {
-    throw new Error(`Article not found: ${slug}`);
-  }
-  fs.unlinkSync(filePath);
+async function deleteArticle(slug: string) {
+  const { error } = await supabase
+    .from("articles")
+    .delete()
+    .eq("slug", slug);
+
+  if (error) throw new Error(`Failed to delete article: ${error.message}`);
   return { deleted: slug };
-}
-
-function getArticle(slug: string) {
-  const filePath = path.join(ARTICLES_DIR, `${slug}.md`);
-  if (!fs.existsSync(filePath)) {
-    throw new Error(`Article not found: ${slug}`);
-  }
-  const content = fs.readFileSync(filePath, "utf-8");
-  return { slug, content };
-}
-
-function updateTheme(colors: { primary?: string; accent?: string }) {
-  if (!fs.existsSync(THEME_FILE)) {
-    throw new Error("Theme file not found");
-  }
-
-  let css = fs.readFileSync(THEME_FILE, "utf-8");
-
-  if (colors.primary) {
-    css = css.replace(/(--primary:\s*)#[0-9a-fA-F]{6}/g, `$1${colors.primary}`);
-  }
-  if (colors.accent) {
-    css = css.replace(/(--accent:\s*)#[0-9a-fA-F]{6}/g, `$1${colors.accent}`);
-  }
-
-  fs.writeFileSync(THEME_FILE, css);
-  return { updated: true, colors };
-}
-
-function publishChanges(commitMessage: string) {
-  try {
-    execSync("git add .", { cwd: WEBSITE_ROOT });
-    execSync(`git commit -m "${commitMessage.replace(/"/g, '\\"')}"`, { cwd: WEBSITE_ROOT });
-    execSync("git push", { cwd: WEBSITE_ROOT });
-    return { success: true, message: "Changes published successfully" };
-  } catch (error) {
-    return { success: false, message: `Failed to publish: ${error}` };
-  }
 }
 
 // Create the MCP server
 const server = new Server(
   {
     name: "board-roles-mcp",
-    version: "1.0.0",
+    version: "2.0.0",
   },
   {
     capabilities: {
@@ -190,7 +109,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     tools: [
       {
         name: "list_articles",
-        description: "List all articles on the website",
+        description: "List all articles on the website (real-time from database)",
         inputSchema: {
           type: "object",
           properties: {},
@@ -202,14 +121,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         inputSchema: {
           type: "object",
           properties: {
-            slug: { type: "string", description: "The article slug (filename without .md)" },
+            slug: { type: "string", description: "The article slug" },
           },
           required: ["slug"],
         },
       },
       {
         name: "create_article",
-        description: "Create a new article on the website",
+        description: "Create a new article (instantly visible on website)",
         inputSchema: {
           type: "object",
           properties: {
@@ -223,7 +142,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: "edit_article",
-        description: "Edit an existing article",
+        description: "Edit an existing article (changes appear instantly)",
         inputSchema: {
           type: "object",
           properties: {
@@ -238,56 +157,13 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: "delete_article",
-        description: "Delete an article from the website",
+        description: "Delete an article (removed instantly from website)",
         inputSchema: {
           type: "object",
           properties: {
             slug: { type: "string", description: "The article slug to delete" },
           },
           required: ["slug"],
-        },
-      },
-      {
-        name: "update_theme",
-        description: "Update the website theme colors",
-        inputSchema: {
-          type: "object",
-          properties: {
-            primary: { type: "string", description: "Primary color hex code (e.g., #1e40af)" },
-            accent: { type: "string", description: "Accent color hex code (e.g., #0891b2)" },
-          },
-        },
-      },
-      {
-        name: "get_site_config",
-        description: "Get the current site configuration",
-        inputSchema: {
-          type: "object",
-          properties: {},
-        },
-      },
-      {
-        name: "update_site_config",
-        description: "Update site configuration (name, description, etc.)",
-        inputSchema: {
-          type: "object",
-          properties: {
-            siteName: { type: "string", description: "The site name" },
-            siteDescription: { type: "string", description: "The site description" },
-            heroTitle: { type: "string", description: "Homepage hero title" },
-            heroDescription: { type: "string", description: "Homepage hero description" },
-          },
-        },
-      },
-      {
-        name: "publish_changes",
-        description: "Commit and push all changes to deploy the website",
-        inputSchema: {
-          type: "object",
-          properties: {
-            message: { type: "string", description: "Commit message describing the changes" },
-          },
-          required: ["message"],
         },
       },
     ],
@@ -301,58 +177,34 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   try {
     switch (name) {
       case "list_articles": {
-        const articles = listArticles();
+        const articles = await listArticles();
         return { content: [{ type: "text", text: JSON.stringify(articles, null, 2) }] };
       }
       case "get_article": {
-        const article = getArticle(args?.slug as string);
+        const article = await getArticle(args?.slug as string);
         return { content: [{ type: "text", text: JSON.stringify(article, null, 2) }] };
       }
       case "create_article": {
-        const result = createArticle(
+        const result = await createArticle(
           args?.title as string,
           args?.content as string,
           args?.category as string,
           args?.excerpt as string
         );
-        return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+        return { content: [{ type: "text", text: `Article created successfully!\n\n${JSON.stringify(result, null, 2)}\n\nThe article is now live on the website.` }] };
       }
       case "edit_article": {
-        const result = editArticle(args?.slug as string, {
+        const result = await editArticle(args?.slug as string, {
           title: args?.title as string | undefined,
           content: args?.content as string | undefined,
           category: args?.category as string | undefined,
           excerpt: args?.excerpt as string | undefined,
         });
-        return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+        return { content: [{ type: "text", text: `Article updated successfully!\n\n${JSON.stringify(result, null, 2)}\n\nChanges are now live on the website.` }] };
       }
       case "delete_article": {
-        const result = deleteArticle(args?.slug as string);
-        return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-      }
-      case "update_theme": {
-        const result = updateTheme({
-          primary: args?.primary as string | undefined,
-          accent: args?.accent as string | undefined,
-        });
-        return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-      }
-      case "get_site_config": {
-        const config = readConfig();
-        return { content: [{ type: "text", text: JSON.stringify(config, null, 2) }] };
-      }
-      case "update_site_config": {
-        const config = readConfig();
-        if (args?.siteName) config.siteName = args.siteName;
-        if (args?.siteDescription) config.siteDescription = args.siteDescription;
-        if (args?.heroTitle) config.homepage.heroTitle = args.heroTitle;
-        if (args?.heroDescription) config.homepage.heroDescription = args.heroDescription;
-        writeConfig(config);
-        return { content: [{ type: "text", text: JSON.stringify(config, null, 2) }] };
-      }
-      case "publish_changes": {
-        const result = publishChanges(args?.message as string);
-        return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+        const result = await deleteArticle(args?.slug as string);
+        return { content: [{ type: "text", text: `Article deleted successfully!\n\n${JSON.stringify(result, null, 2)}` }] };
       }
       default:
         throw new Error(`Unknown tool: ${name}`);
@@ -369,7 +221,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("Board Roles MCP server running on stdio");
+  console.error("Board Roles MCP server (Supabase) running on stdio");
 }
 
 main().catch(console.error);

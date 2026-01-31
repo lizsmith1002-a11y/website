@@ -1,75 +1,47 @@
-import fs from "fs";
-import path from "path";
+import { supabase, Article } from "./supabase";
 
-export type Article = {
-  slug: string;
-  title: string;
-  excerpt: string;
-  date: string;
-  category: string;
-  content: string;
-};
+export type { Article };
 
-const articlesDirectory = path.join(process.cwd(), "content/articles");
+export async function getArticles(): Promise<Article[]> {
+  const { data, error } = await supabase
+    .from("articles")
+    .select("*")
+    .order("date", { ascending: false });
 
-function parseMarkdown(fileContent: string): { frontmatter: Record<string, string>; content: string } {
-  const frontmatterRegex = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/;
-  const match = fileContent.match(frontmatterRegex);
-
-  if (!match) {
-    return { frontmatter: {}, content: fileContent };
-  }
-
-  const frontmatterLines = match[1].split("\n");
-  const frontmatter: Record<string, string> = {};
-
-  for (const line of frontmatterLines) {
-    const [key, ...valueParts] = line.split(": ");
-    if (key && valueParts.length > 0) {
-      frontmatter[key.trim()] = valueParts.join(": ").trim();
-    }
-  }
-
-  return { frontmatter, content: match[2].trim() };
-}
-
-export function getArticles(): Article[] {
-  if (!fs.existsSync(articlesDirectory)) {
+  if (error) {
+    console.error("Error fetching articles:", error);
     return [];
   }
 
-  const fileNames = fs.readdirSync(articlesDirectory);
-  const articles = fileNames
-    .filter((fileName) => fileName.endsWith(".md"))
-    .map((fileName) => {
-      const slug = fileName.replace(/\.md$/, "");
-      const fullPath = path.join(articlesDirectory, fileName);
-      const fileContents = fs.readFileSync(fullPath, "utf8");
-      const { frontmatter, content } = parseMarkdown(fileContents);
-
-      return {
-        slug,
-        title: frontmatter.title || slug,
-        excerpt: frontmatter.excerpt || "",
-        date: frontmatter.date || "",
-        category: frontmatter.category || "Uncategorized",
-        content,
-      };
-    })
-    .sort((a, b) => (a.date > b.date ? -1 : 1));
-
-  return articles;
+  return data || [];
 }
 
-export function getArticleBySlug(slug: string): Article | undefined {
-  const articles = getArticles();
-  return articles.find((article) => article.slug === slug);
+export async function getArticleBySlug(slug: string): Promise<Article | null> {
+  const { data, error } = await supabase
+    .from("articles")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+
+  if (error) {
+    console.error("Error fetching article:", error);
+    return null;
+  }
+
+  return data;
 }
 
-export function getArticlesByCategory(category: string): Article[] {
-  const articles = getArticles();
-  return articles.filter((article) => article.category === category);
-}
+export async function getArticlesByCategory(category: string): Promise<Article[]> {
+  const { data, error } = await supabase
+    .from("articles")
+    .select("*")
+    .eq("category", category)
+    .order("date", { ascending: false });
 
-// For backward compatibility
-export const articles = getArticles();
+  if (error) {
+    console.error("Error fetching articles by category:", error);
+    return [];
+  }
+
+  return data || [];
+}

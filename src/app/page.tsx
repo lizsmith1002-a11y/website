@@ -3,8 +3,10 @@ import { Container, Button } from "@/components/ui";
 import { ArticleCard } from "@/components/ArticleCard";
 import { getArticles } from "@/lib/articles";
 
-export default function Home() {
-  const articles = getArticles();
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const articles = await getArticles();
   const featuredArticles = articles.slice(0, 3);
 
   return (

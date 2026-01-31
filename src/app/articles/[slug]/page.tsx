@@ -3,18 +3,20 @@ import Link from "next/link";
 import { Container } from "@/components/ui";
 import { getArticles, getArticleBySlug } from "@/lib/articles";
 
+export const dynamic = "force-dynamic";
+
 type Props = {
   params: Promise<{ slug: string }>;
 };
 
 export async function generateStaticParams() {
-  const articles = getArticles();
+  const articles = await getArticles();
   return articles.map((article) => ({ slug: article.slug }));
 }
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const article = getArticleBySlug(slug);
+  const article = await getArticleBySlug(slug);
   if (!article) return { title: "Article Not Found" };
   return {
     title: `${article.title} - Board Roles`,
@@ -24,7 +26,7 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function ArticlePage({ params }: Props) {
   const { slug } = await params;
-  const article = getArticleBySlug(slug);
+  const article = await getArticleBySlug(slug);
 
   if (!article) {
     notFound();

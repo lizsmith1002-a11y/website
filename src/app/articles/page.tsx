@@ -2,13 +2,16 @@ import { Container } from "@/components/ui";
 import { ArticleCard } from "@/components/ArticleCard";
 import { getArticles } from "@/lib/articles";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Articles - Board Roles",
   description: "Browse all articles on board governance, leadership, and best practices.",
 };
 
-export default function ArticlesPage() {
-  const articles = getArticles();
+export default async function ArticlesPage() {
+  const articles = await getArticles();
+
   return (
     <section className="py-16">
       <Container>
