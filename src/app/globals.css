@@ -1,45 +1,50 @@
 @import "tailwindcss";
 
-/* Theme Configuration - Easy to customize colors */
+/* Professional Theme - Sophisticated & Elegant */
 :root {
-  /* Primary Brand Colors */
-  --primary: #1e40af;
-  --primary-light: #3b82f6;
-  --primary-dark: #1e3a8a;
+  /* Primary Brand Colors - Deep Navy */
+  --primary: #1a365d;
+  --primary-light: #2c5282;
+  --primary-dark: #0f2744;
 
-  /* Accent Colors */
-  --accent: #0891b2;
-  --accent-light: #22d3ee;
+  /* Accent Colors - Warm Copper/Bronze */
+  --accent: #b87333;
+  --accent-light: #d4956a;
 
-  /* Neutral Colors */
-  --background: #ffffff;
-  --foreground: #171717;
-  --muted: #f5f5f5;
-  --muted-foreground: #737373;
-  --border: #e5e5e5;
+  /* Neutral Colors - Warm Grays */
+  --background: #fdfcfb;
+  --foreground: #1a1a1a;
+  --muted: #f7f5f3;
+  --muted-foreground: #64605a;
+  --border: #e8e4e0;
 
   /* Card Colors */
   --card: #ffffff;
-  --card-foreground: #171717;
+  --card-foreground: #1a1a1a;
+
+  /* Additional accent */
+  --subtle: #f0ebe6;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --primary: #3b82f6;
-    --primary-light: #60a5fa;
-    --primary-dark: #1e40af;
+    --primary: #5a8fcc;
+    --primary-light: #7eb0e6;
+    --primary-dark: #1a365d;
 
-    --accent: #22d3ee;
-    --accent-light: #67e8f9;
+    --accent: #d4956a;
+    --accent-light: #e6b896;
 
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --muted: #262626;
-    --muted-foreground: #a3a3a3;
-    --border: #404040;
+    --background: #121212;
+    --foreground: #f5f3f0;
+    --muted: #1e1e1e;
+    --muted-foreground: #a8a29e;
+    --border: #2e2e2e;
 
-    --card: #171717;
-    --card-foreground: #ededed;
+    --card: #1a1a1a;
+    --card-foreground: #f5f3f0;
+
+    --subtle: #252525;
   }
 }
 
@@ -56,10 +61,35 @@
   --color-border: var(--border);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+  --color-subtle: var(--subtle);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+  font-family: "Georgia", "Times New Roman", serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography enhancements */
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Georgia", "Times New Roman", serif;
+  letter-spacing: -0.02em;
+}
+
+/* Sans-serif for UI elements */
+button, nav, .ui-text {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Smooth transitions */
+a {
+  transition: color 0.2s ease;
+}
+
+/* Selection styling */
+::selection {
+  background: var(--primary);
+  color: white;
 }

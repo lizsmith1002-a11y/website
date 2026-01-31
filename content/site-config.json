@@ -1,18 +1,18 @@
 {
-  "siteName": "Board Roles",
-  "siteDescription": "Expert Guidance for Board Members",
+  "siteName": "Liz Smith",
+  "siteDescription": "Board Advisory & Governance Insights",
   "homepage": {
-    "heroTitle": "Expert Guidance for",
-    "heroTitleHighlight": "Board Members",
-    "heroDescription": "Discover insights on board governance, leadership roles, and best practices for effective board service.",
+    "heroTitle": "Navigating the boardroom with",
+    "heroTitleHighlight": "clarity and confidence",
+    "heroDescription": "Drawing from years of experience across nonprofit and corporate boards, I share practical insights on governance, fiduciary duty, and the art of effective board leadership.",
     "featuredArticleCount": 3
   },
-  "categories": ["Leadership", "Finance", "Governance", "Committees", "Getting Started"],
+  "categories": ["Governance", "Leadership", "Finance", "Strategy", "Getting Started"],
   "theme": {
-    "primary": "#1e40af",
-    "primaryLight": "#3b82f6",
-    "primaryDark": "#1e3a8a",
-    "accent": "#0891b2",
-    "accentLight": "#22d3ee"
+    "primary": "#1a365d",
+    "primaryLight": "#2c5282",
+    "primaryDark": "#0f2744",
+    "accent": "#b87333",
+    "accentLight": "#d4956a"
   }
 }
