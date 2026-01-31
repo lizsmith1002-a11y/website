@@ -32,7 +32,7 @@ else
       "args": ["$SCRIPT_DIR/server.js"],
       "env": {
         "SUPABASE_URL": "https://rxazwptngtabeoilfexy.supabase.co",
-        "SUPABASE_SERVICE_ROLE_KEY": "REPLACE_WITH_YOUR_SERVICE_ROLE_KEY"
+        "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4YXp3cHRuZ3RhYmVvaWxmZXh5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2OTg4OTk2NiwiZXhwIjoyMDg1NDY1OTY2fQ.s0w5M4afB99Kuix--q6CJwOJCcWeuDJM7FuM2QltKDk"
       }
     }
   }
@@ -42,12 +42,8 @@ EOF
 fi
 
 echo ""
-echo "📝 IMPORTANT: You need to add your Supabase service role key!"
-echo "   1. Go to: https://supabase.com/dashboard → Your Project → Settings → API"
-echo "   2. Copy the 'service_role' key (NOT the anon key)"
-echo "   3. Edit: $CONFIG_FILE"
-echo "   4. Replace REPLACE_WITH_YOUR_SERVICE_ROLE_KEY with your key"
+echo "✅ Setup complete! Credentials are pre-configured."
 echo ""
-echo "🔄 Then restart Claude Desktop and you're ready to go!"
+echo "🔄 Now restart Claude Desktop and you're ready to go!"
 echo ""
 echo "💬 Try saying: 'List all articles on my website'"
