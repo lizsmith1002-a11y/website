@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { Container, Button } from "@/components/ui";
 import { ArticleCard } from "@/components/ArticleCard";
-import { articles } from "@/lib/articles";
+import { getArticles } from "@/lib/articles";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const articles = await getArticles();
   const featuredArticles = articles.slice(0, 3);
 
   return (
