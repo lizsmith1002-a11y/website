@@ -31,7 +31,7 @@ export default async function Home() {
                 <Button>Read My Insights</Button>
               </Link>
               <Link href="#about">
-                <Button variant="outline">About My Work</Button>
+                <Button variant="outline">About Me</Button>
               </Link>
             </div>
           </div>
@@ -141,7 +141,9 @@ export default async function Home() {
               I&apos;d love to hear from you.
             </p>
             <a
-              href="mailto:hello@lizsmith.com"
+              href="https://www.linkedin.com/in/lizsmithmelbourne/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-block px-8 py-3 bg-white text-primary font-medium rounded hover:bg-gray-100 transition-colors ui-text"
             >
               Get in Touch

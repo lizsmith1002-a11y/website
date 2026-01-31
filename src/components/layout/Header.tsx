@@ -27,12 +27,14 @@ export function Header() {
             >
               Insights
             </Link>
-            <Link
-              href="#contact"
+            <a
+              href="https://www.linkedin.com/in/lizsmithmelbourne/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-sm font-medium px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark transition-colors"
             >
               Contact
-            </Link>
+            </a>
           </div>
         </nav>
       </Container>
