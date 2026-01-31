@@ -3,8 +3,8 @@ import { Header, Footer } from "@/components/layout";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Board Roles - Expert Guidance for Board Members",
-  description: "Articles and resources for board members, covering governance, leadership, and best practices for effective board service.",
+  title: "Liz Smith - Board Advisory & Governance Insights",
+  description: "Perspectives on board governance, leadership, and effective board service from an experienced board professional.",
 };
 
 export default function RootLayout({

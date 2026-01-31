@@ -5,25 +5,38 @@ import { getArticles } from "@/lib/articles";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Articles - Board Roles",
-  description: "Browse all articles on board governance, leadership, and best practices.",
+  title: "Insights - Liz Smith",
+  description: "Perspectives on board governance, leadership, and effective board service.",
 };
 
 export default async function ArticlesPage() {
   const articles = await getArticles();
 
   return (
-    <section className="py-16">
+    <section className="py-20">
       <Container>
-        <h1 className="text-3xl font-bold mb-4">All Articles</h1>
-        <p className="text-muted-foreground mb-10 max-w-2xl">
-          Explore our collection of articles covering board roles, governance best practices,
-          and guidance for effective board service.
-        </p>
-        <div className="flex flex-col gap-6 max-w-2xl">
-          {articles.map((article) => (
-            <ArticleCard key={article.slug} article={article} />
-          ))}
+        <div className="max-w-3xl mb-16">
+          <p className="text-accent font-medium tracking-wide uppercase text-sm ui-text mb-4">
+            Insights & Perspectives
+          </p>
+          <h1 className="text-4xl sm:text-5xl font-normal mb-6">Writing on Governance</h1>
+          <p className="text-xl text-muted-foreground leading-relaxed">
+            Reflections on board service, governance best practices, and lessons learned
+            from the boardroom. Each piece draws from real experience to offer practical
+            guidance for current and aspiring board members.
+          </p>
+        </div>
+        <div className="max-w-3xl">
+          <div className="flex flex-col gap-8">
+            {articles.map((article) => (
+              <ArticleCard key={article.slug} article={article} />
+            ))}
+          </div>
+          {articles.length === 0 && (
+            <p className="text-muted-foreground text-center py-12">
+              New articles coming soon. Check back for insights on board governance and leadership.
+            </p>
+          )}
         </div>
       </Container>
     </section>
