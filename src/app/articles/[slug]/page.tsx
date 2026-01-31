@@ -1,13 +1,14 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Container } from "@/components/ui";
-import { articles, getArticleBySlug } from "@/lib/articles";
+import { getArticles, getArticleBySlug } from "@/lib/articles";
 
 type Props = {
   params: Promise<{ slug: string }>;
 };
 
 export async function generateStaticParams() {
+  const articles = getArticles();
   return articles.map((article) => ({ slug: article.slug }));
 }
 

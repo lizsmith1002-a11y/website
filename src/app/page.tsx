@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { Container, Button } from "@/components/ui";
 import { ArticleCard } from "@/components/ArticleCard";
-import { articles } from "@/lib/articles";
+import { getArticles } from "@/lib/articles";
 
 export default function Home() {
+  const articles = getArticles();
   const featuredArticles = articles.slice(0, 3);
 
   return (

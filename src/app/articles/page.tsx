@@ -1,6 +1,6 @@
 import { Container } from "@/components/ui";
 import { ArticleCard } from "@/components/ArticleCard";
-import { articles } from "@/lib/articles";
+import { getArticles } from "@/lib/articles";
 
 export const metadata = {
   title: "Articles - Board Roles",
@@ -8,6 +8,7 @@ export const metadata = {
 };
 
 export default function ArticlesPage() {
+  const articles = getArticles();
   return (
     <section className="py-16">
       <Container>

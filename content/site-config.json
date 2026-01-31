@@ -1,0 +1,18 @@
+{
+  "siteName": "Board Roles",
+  "siteDescription": "Expert Guidance for Board Members",
+  "homepage": {
+    "heroTitle": "Expert Guidance for",
+    "heroTitleHighlight": "Board Members",
+    "heroDescription": "Discover insights on board governance, leadership roles, and best practices for effective board service.",
+    "featuredArticleCount": 3
+  },
+  "categories": ["Leadership", "Finance", "Governance", "Committees", "Getting Started"],
+  "theme": {
+    "primary": "#1e40af",
+    "primaryLight": "#3b82f6",
+    "primaryDark": "#1e3a8a",
+    "accent": "#0891b2",
+    "accentLight": "#22d3ee"
+  }
+}
